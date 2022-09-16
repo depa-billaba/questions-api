@@ -113,3 +113,35 @@ router.get('/', async (req, res) => {
   res.status(200);
   res.send(clientData);
 })
+
+router.post('/', async (req, res) => {
+  const body = req.query.body;
+  const name = req.query.name;
+  const email = req.query.email;
+  const product_id = Number(req.query.product_id);
+  const date = new Date();
+  const response = await db.query(`
+    INSERT INTO questions (product_id, body, date_written, asker_name, asker_email)
+    VALUES ($1, $2, $3, $4, $5)
+  `, [product_id, body, date, name, email])
+  res.sendStatus(201);
+})
+
+router.post('/:question_id/answers', async (req, res) => {
+  const id = req.params.question_id;
+  const {body, name, email} = req.query;
+  const photos = JSON.parse(req.query.photos);
+  let response = await db.query(`
+    INSERT INTO answers (question_id, body, date_written, answerer_name, answerer_email)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id
+  `, [id, body, new Date(), name ,email])
+  const answerId = response.rows[0].id;
+  photos.forEach(async photo => {
+    await db.query(`
+      INSERT INTO photos (answer_id, url)
+      VALUES ($1, $2)
+    `, [answerId, photo])
+  })
+  res.sendStatus(201);
+})
