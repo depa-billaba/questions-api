@@ -145,3 +145,22 @@ router.post('/:question_id/answers', async (req, res) => {
   })
   res.sendStatus(201);
 })
+
+router.put('/:question_id/helpful', async (req, res) => {
+  const id = req.params.question_id;
+  const response = await db.query(`
+    UPDATE questions
+    SET helpful = helpful + 1
+    WHERE id = $1
+  `, [id])
+  res.sendStatus(204);
+})
+router.put('/:question_id/report', async (req, res) => {
+  const id = req.params.question_id;
+  const response = await db.query(`
+    UPDATE questions
+    SET reported = true
+    WHERE id = $1
+  `, [id]);
+  res.sendStatus(204);
+})
