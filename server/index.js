@@ -7,7 +7,7 @@ const app = express();
 mountRoutes(app);
 const PORT = process.env.port || 8090;
 
-app.use(morgan('dev'));
+app.use(express.static(__dirname + '/public'));
 
 app.listen(PORT, () => {
   console.log(`QnA service listening on port ${PORT}`);
